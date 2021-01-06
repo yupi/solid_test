@@ -30,7 +30,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   HSVColor _color = HSVColor.fromColor(Colors.white);
   HSVColor _newColor;
+
   AnimationController _animationController;
+  CurvedAnimation _animation;
   math.Random _gen;
 
   @override
@@ -48,6 +50,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         _animationController.reset();
       }
     });
+
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOutCubic,
+    );
 
     _gen = math.Random(DateTime.now().microsecondsSinceEpoch);
     _newColor = _randomColor();
@@ -75,26 +82,19 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-        body: AnimatedBuilder(
-          animation: _animationController,
-          child: Center(child: Text('Hi there')),
-          builder: (context, child) {
-            final _animation = CurvedAnimation(
-              parent: _animationController,
-              curve: Curves.easeInOutCubic,
-            );
-
-            return GestureDetector(
-              onTap: _onTap,
-              child: Container(
-                color: HSVColor.lerp(_color, _newColor, _animationController.value).toColor(),
-                child: RotationTransition(
-                  turns: _animation,
-                  child: child,
-                ),
+        body: GestureDetector(
+          onTap: _onTap,
+          child: AnimatedBuilder(
+            animation: _animationController,
+            child: Center(child: Text('Hi there')),
+            builder: (context, child) => Container(
+              color: HSVColor.lerp(_color, _newColor, _animationController.value).toColor(),
+              child: RotationTransition(
+                turns: _animation,
+                child: child,
               ),
-            );
-          }
+            )
+          ),
         ),
     );
   }
