@@ -39,7 +39,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 1000),
+      duration: Duration(milliseconds: 500),
       vsync: this,
     );
 
@@ -71,6 +71,21 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     return HSVColor.fromColor(color);
   }
 
+  Gradient _randomGradient() {
+    return LinearGradient(
+      begin: Alignment.bottomLeft,
+      end: Alignment.topRight,
+      colors: [
+        _randomColor().toColor(),
+        _randomColor().toColor(),
+        _randomColor().toColor(),
+        _randomColor().toColor(),
+        _randomColor().toColor(),
+        _randomColor().toColor(),
+      ]
+    );
+  }
+
   void _onTap() {
     _animationController.reset();
     _animationController.forward();
@@ -86,13 +101,23 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
           onTap: _onTap,
           child: AnimatedBuilder(
             animation: _animationController,
-            child: Center(child: Text('Hi there')),
+            child: Center(child: ShaderMask(
+              shaderCallback: (Rect bounds) {
+                return _randomGradient().lerpTo(_randomGradient(), _animationController.value)
+                  .createShader(bounds);
+              },
+              child: Text(
+                'Hi there',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 56,
+                  fontWeight: FontWeight.w800
+                ),
+              ),
+            )),
             builder: (context, child) => Container(
               color: HSVColor.lerp(_color, _newColor, _animationController.value).toColor(),
-              child: RotationTransition(
-                turns: _animation,
-                child: child,
-              ),
+              child: RotationTransition(turns: _animation, child: child),
             )
           ),
         ),
